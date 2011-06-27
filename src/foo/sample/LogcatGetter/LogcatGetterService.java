@@ -35,7 +35,7 @@ public class LogcatGetterService extends Service{
 		super.onStart(intent, startId);
 		if(mThread == null)
 		{
-			mThread = new Thread(new new Runnable() {
+			mThread = new Thread(new Runnable() {
 				public void run() {
 					Process proc = null;
 					BufferedReader reader = null;
@@ -114,7 +114,7 @@ public class LogcatGetterService extends Service{
 	public IBinder onBind(Intent arg0) {
 		return mBinder;
 	}
-	private class LogcatGetterServiceBinder extends IlogcatGetterService.Stub
+	private class LogcatGetterServiceBinder extends ILogcatGetterService.Stub
 	{
 		public List<String> getDispData()
 		{

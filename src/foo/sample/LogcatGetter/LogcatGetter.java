@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LogcatGetter extends Activity implements OnClickListener {
-	private LogcatGetterService logcatGetterService = null;
+	private ILogcatGetterService logcatGetterService = null;
 	private boolean isUserStartedService = false;
 	private boolean isUserStoppedService = false;
 	private LogcatGetterServiceConnection serviceConnection = new LogcatGetterServiceConnection();
@@ -39,7 +39,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	{
 		Intent intent = new Intent(this,LogcatGetterService.class);
 		startService(intent);
-		bindService(intent, ServiceConnection, Context.BIND_AUTO_CREATE);
+		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 	}
 	private void stopLogcatService()
 	{
@@ -47,12 +47,12 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		{
 			if(isUserStoppedService)
 			{
-				logcatGetterService.setLogBread();
+				logcatGetterService.setLogBreak();
 			}
 			if(logcatGetterService != null)
 			{
-				ServiceConnection.onServiceDisconnected(null);
-				unbindService(ServiceConnection);
+				serviceConnection.onServiceDisconnected(null);
+				unbindService(serviceConnection);
 			}
 		}
 		catch(RemoteException e)
@@ -93,7 +93,8 @@ public class LogcatGetter extends Activity implements OnClickListener {
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			logcatGetterService = IlogcatGetterService.Stub.asInterface(service);
+			//logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
+			logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
 			try
 			{
 				Thread.sleep(500);
