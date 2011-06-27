@@ -181,9 +181,13 @@ public class LogcatGetterService extends Service{
 			isTryWrite = true;
 			return LOGWRITE_OK;
 		}
-		public void stopWrite()
+		public int stopWrite()
 		{
 			Log.d("debug","LogcatGetterService:stopWrite");
+			if(!isFileWrite && !isTryWrite)
+			{
+				return -1;
+			}
 			isFileWrite = false;
 			isTryWrite = false;
 			try {
@@ -192,6 +196,7 @@ public class LogcatGetterService extends Service{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			return 1;
 			
 		}
 		public void setLogBreak()

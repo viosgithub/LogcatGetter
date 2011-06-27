@@ -39,12 +39,20 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		}
 	}
 	private void stopSaveLog() {
-		// TODO Auto-generated method stub
+		int ret = -1;
 		try {
-			logcatGetterService.stopWrite();
+		ret = logcatGetterService.stopWrite();
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		if(ret == -1)
+		{
+			Toast.makeText(getApplicationContext(), "Already Stop Writing", Toast.LENGTH_SHORT).show();
+		}
+		if(ret == 1)
+		{
+			Toast.makeText(getApplicationContext(), "Stop Writing", Toast.LENGTH_SHORT).show();
 		}
 		
 	}
@@ -93,7 +101,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			}
 			else
 			{
-				Toast.makeText(getApplicationContext(), "write OK", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "write start", Toast.LENGTH_SHORT).show();
 			}
 		}
 		catch(RemoteException e)
