@@ -12,14 +12,25 @@ import java.util.List;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class LogcatGetterService extends Service{
 	
 	private static final int LOGCAT_SAVE_MAXLINES = 30000;
 	private static final int LOGCAT_DISP_MAXLINES = 1000;
+	
+	private static final int LOGWRITE_ALREADY_WRITE = -1;
+	private static final int LOGWRITE_OK = 1;
+	
+	private boolean isFileWrite = false;
+	private boolean isTryWrite = false;
+	private String writeFileName = "none";
 
 	private IBinder mBinder = new LogcatGetterServiceBinder();
 	private List<String> mList = new ArrayList<String>();
+	
+	private BufferedWriter bw = null;
+	
 	
 	private Thread mThread = null;
 	private Object mObjThreadBread = new Object();
@@ -33,6 +44,7 @@ public class LogcatGetterService extends Service{
 	public void onStart(Intent intent,int startId)
 	{
 		super.onStart(intent, startId);
+		Log.d("debug", "LogcatGetterService:onStart");
 		if(mThread == null)
 		{
 			mThread = new Thread(new Runnable() {
@@ -46,7 +58,7 @@ public class LogcatGetterService extends Service{
 					try
 					{
 						proc = Runtime.getRuntime().exec(new String[] {"logcat","-v","long"});
-						reader = new BufferedReader(new InputStreamReader(proc.getInputStream()),1024);
+						reader = new BufferedReader(new InputStreamReader(proc.getInputStream()),4056);
 						String line;
 						while(true)
 						{
@@ -57,18 +69,33 @@ public class LogcatGetterService extends Service{
 									break;
 								}
 							}
+							if (isTryWrite)
+							{
+								isTryWrite = false;
+								bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/sdcard/" + writeFileName),"UTF-8"));
+								isFileWrite = true;
+							}
 							
 							line = reader.readLine();
 							if(line.length() == 0)
 							{
 								try
 								{
+									if(isFileWrite)
+									{
+									bw.flush();
+									}
 									Thread.sleep(200);
 								}
 								catch(InterruptedException e)
 								{
 								}
 								continue;
+							}
+							if(isFileWrite)
+							{
+								bw.append(line);
+								bw.newLine();
 							}
 							synchronized(mList)
 							{
@@ -109,6 +136,16 @@ public class LogcatGetterService extends Service{
 	public void onDestroy()
 	{
 		super.onDestroy();
+		isTryWrite = isFileWrite = false;
+		if(bw != null)
+		{
+			try {
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -134,30 +171,28 @@ public class LogcatGetterService extends Service{
 		}
 		public int saveLog(String FileName)
 		{
-			int ret = -1;
-			try
+			Log.d("debug","LogcatGetterService:saveLog");
+			writeFileName = FileName;
+			if(isFileWrite)
 			{
-				String line;
-				int iCnt;
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/sdcard/" + FileName),"UTF-8"));
-				synchronized(mList)
-				{
-					for(iCnt = 0;iCnt<mList.size();iCnt++)
-					{
-						line = mList.get(iCnt);
-						bw.write(line);
-						bw.newLine();
-					}
-				}
-				bw.flush();
-				bw.close();
-				ret = iCnt;
+				return LOGWRITE_ALREADY_WRITE; 
 			}
-			catch(IOException e)
-			{
+			
+			isTryWrite = true;
+			return LOGWRITE_OK;
+		}
+		public void stopWrite()
+		{
+			Log.d("debug","LogcatGetterService:stopWrite");
+			isFileWrite = false;
+			isTryWrite = false;
+			try {
+				bw.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return ret;
+			
 		}
 		public void setLogBreak()
 		{

@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -30,16 +31,30 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		if(v == findViewById(R.id.btnStart))
 		{
+			saveLog();
 		}
 		else if(v == findViewById(R.id.btnStop))
 		{
+			stopSaveLog();
 		}
 	}
+	private void stopSaveLog() {
+		// TODO Auto-generated method stub
+		try {
+			logcatGetterService.stopWrite();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 	private void startLogcatService()
 	{
 		Intent intent = new Intent(this,LogcatGetterService.class);
 		startService(intent);
 		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+		Log.d("debug","start Logcat Service");
 	}
 	private void stopLogcatService()
 	{
@@ -62,9 +77,10 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	}
 	private void saveLog()
 	{
+		Log.d("debug","push save button");
 		if(logcatGetterService == null)
 		{
-			Toast.makeText(getApplicationContext(), "Logcat Service is not begun", Toast.LENGTH_SHORT).show();
+			startLogcatService();
 			return;
 		}
 		EditText edt = (EditText)findViewById(R.id.editText1);
@@ -77,7 +93,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			}
 			else
 			{
-				Toast.makeText(getApplicationContext(), "failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "write OK", Toast.LENGTH_SHORT).show();
 			}
 		}
 		catch(RemoteException e)
@@ -88,6 +104,21 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	private void updateLogDisp()
 	{
 	}
+	@Override
+	protected final void onResume()
+	{
+		super.onResume();
+		if(logcatGetterService == null)
+		{
+			startLogcatService();
+		}
+	}
+	@Override
+	protected final void onDestroy()
+	{
+		super.onDestroy();
+		stopLogcatService();
+	}
 	private class LogcatGetterServiceConnection implements ServiceConnection
 	{
 
@@ -95,23 +126,27 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			//logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
 			logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
+			Log.d("debug","onServiceConnected");
 			try
 			{
 				Thread.sleep(500);
 			}
 			catch(InterruptedException e)
 			{
+				Log.d("debug","onServiceConnected,InterreupedException");
+				e.printStackTrace();
 			}
 				LogcatGetter.this.updateLogDisp();
 				if(isUserStartedService)
 				{
-					Toast.makeText(LogcatGetter.this, "StartedSaving", Toast.LENGTH_SHORT);
+					Toast.makeText(LogcatGetter.this, "StartedService", Toast.LENGTH_SHORT);
 					isUserStartedService = false;
 				}
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			Log.d("debug","onServiceDisConnected");
 			logcatGetterService = null;
 			if(isUserStoppedService)
 			{
