@@ -41,10 +41,6 @@ public class LogcatGetterService extends Service{
 	{
 		super.onCreate();
 	}
-	public boolean isWritting()
-	{
-		return isFileWrite;
-	}
 	public void onStart(Intent intent,int startId)
 	{
 		super.onStart(intent, startId);
@@ -202,6 +198,10 @@ public class LogcatGetterService extends Service{
 			}
 			return 1;
 			
+		}
+		public boolean isWritting()
+		{
+			return isFileWrite;
 		}
 		public void setLogBreak()
 		{

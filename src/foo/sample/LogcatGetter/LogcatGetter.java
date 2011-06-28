@@ -1,10 +1,14 @@
 package foo.sample.LogcatGetter;
 
+import java.util.List;
+
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ServiceInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -51,19 +55,39 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		}
 		if(ret == -1)
 		{
-			Toast.makeText(getApplicationContext(), "Already Stop Writing", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "既に停止しています", Toast.LENGTH_SHORT).show();
 		}
 		if(ret == 1)
 		{
-			Toast.makeText(getApplicationContext(), "Stop Writing", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "書き込みを停止しました", Toast.LENGTH_SHORT).show();
+			tvStatus.setText("停止中");
 		}
 		
 	}
 
+	private boolean isServiceRunning(String className)
+	{
+		Log.d("debug","isServiceRunnning");
+		ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+		List<ActivityManager.RunningServiceInfo> serviceInfos = 
+			am.getRunningServices(Integer.MAX_VALUE);
+		for(int i=0;i<serviceInfos.size();i++)
+		{
+			if(serviceInfos.get(i).service.getClassName().equals(className))
+			{
+				Log.d("debug", "serviceFound");
+				return true;
+			}
+		}
+		return false;
+	}
 	private void startLogcatService()
 	{
 		Intent intent = new Intent(this,LogcatGetterService.class);
-		startService(intent);
+		if(!isServiceRunning("foo.sample.LogcatGetter.LogcatGetterService"))
+		{
+			startService(intent);
+		}
 		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 		Log.d("debug","start Logcat Service");
 	}
@@ -92,7 +116,6 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		if(logcatGetterService == null)
 		{
 			startLogcatService();
-			return;
 		}
 		EditText edt = (EditText)findViewById(R.id.editText1);
 		try
@@ -100,11 +123,12 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			int ret = logcatGetterService.saveLog(edt.getText().toString());
 			if(ret <0)
 			{
-				Toast.makeText(getApplicationContext(), "failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "ログ記録開始に失敗しました．すでに保存を開始している可能性があります", Toast.LENGTH_LONG).show();
 			}
 			else
 			{
-				Toast.makeText(getApplicationContext(), "write start", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "ログの記録を開始しました", Toast.LENGTH_SHORT).show();
+				tvStatus.setText("ログ保存中");
 			}
 		}
 		catch(RemoteException e)
@@ -116,13 +140,49 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	{
 	}
 	@Override
+	protected final void onRestart()
+	{
+		super.onRestart();
+	}
+	@Override
+	protected final void onStart()
+	{
+		super.onStart();
+		Log.d("debug","onResume");
+		if(logcatGetterService == null)
+		{
+			startLogcatService();
+		}
+		
+	}
+	@Override
 	protected final void onResume()
 	{
 		super.onResume();
+		Log.d("debug","onResume");
+		
+		/*
 		if(logcatGetterService == null)
 		{
-			tvStatus.setText("停止中");
 			startLogcatService();
+		}
+		*/
+			try {
+				if(logcatGetterService!= null && logcatGetterService.isWritting())
+				{
+					tvStatus.setText("ログ保存中");
+				}
+					else
+					{
+						tvStatus.setText("停止中");
+					}
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		if(logcatGetterService == null)
+		{
+						Log.d("debug","logcatGetterService is null");
 		}
 	}
 	@Override

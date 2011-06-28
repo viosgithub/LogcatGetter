@@ -68,6 +68,14 @@ reply.writeNoException();
 reply.writeInt(_result);
 return true;
 }
+case TRANSACTION_isWritting:
+{
+data.enforceInterface(DESCRIPTOR);
+boolean _result = this.isWritting();
+reply.writeNoException();
+reply.writeInt(((_result)?(1):(0)));
+return true;
+}
 case TRANSACTION_setLogBreak:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -145,6 +153,23 @@ _data.recycle();
 }
 return _result;
 }
+public boolean isWritting() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+boolean _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_isWritting, _data, _reply, 0);
+_reply.readException();
+_result = (0!=_reply.readInt());
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 public void setLogBreak() throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
@@ -163,10 +188,12 @@ _data.recycle();
 static final int TRANSACTION_getDispData = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_saveLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_stopWrite = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
-static final int TRANSACTION_setLogBreak = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_isWritting = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_setLogBreak = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
 }
 public java.util.List<java.lang.String> getDispData() throws android.os.RemoteException;
 public int saveLog(java.lang.String FileName) throws android.os.RemoteException;
 public int stopWrite() throws android.os.RemoteException;
+public boolean isWritting() throws android.os.RemoteException;
 public void setLogBreak() throws android.os.RemoteException;
 }
