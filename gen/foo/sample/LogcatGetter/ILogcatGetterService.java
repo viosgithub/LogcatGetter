@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: C:\\Users\\mori\\dev\\workspace\\LogcatGetter\\src\\foo\\sample\\LogcatGetter\\ILogcatGetterService.aidl
+ * Original file: C:\\Users\\hiroshi\\dev\\workspace\\LogcatGetter\\src\\foo\\sample\\LogcatGetter\\ILogcatGetterService.aidl
  */
 package foo.sample.LogcatGetter;
 public interface ILogcatGetterService extends android.os.IInterface
