@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class LogcatGetter extends Activity implements OnClickListener {
@@ -19,12 +20,14 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	private boolean isUserStartedService = false;
 	private boolean isUserStoppedService = false;
 	private LogcatGetterServiceConnection serviceConnection = new LogcatGetterServiceConnection();
+	private TextView tvStatus;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         findViewById(R.id.btnStart).setOnClickListener(this);
         findViewById(R.id.btnStop).setOnClickListener(this);
+        tvStatus = (TextView)findViewById(R.id.textView2);
     }
     
 	@Override
@@ -118,6 +121,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		super.onResume();
 		if(logcatGetterService == null)
 		{
+			tvStatus.setText("停止中");
 			startLogcatService();
 		}
 	}

@@ -22,9 +22,9 @@ public class LogcatGetterService extends Service{
 	private static final int LOGWRITE_ALREADY_WRITE = -1;
 	private static final int LOGWRITE_OK = 1;
 	
-	private boolean isFileWrite = false;
-	private boolean isTryWrite = false;
-	private String writeFileName = "none";
+	public boolean isFileWrite = false;
+	public boolean isTryWrite = false;
+	public String writeFileName = "none";
 
 	private IBinder mBinder = new LogcatGetterServiceBinder();
 	private List<String> mList = new ArrayList<String>();
@@ -40,6 +40,10 @@ public class LogcatGetterService extends Service{
 	public void onCreate()
 	{
 		super.onCreate();
+	}
+	public boolean isWritting()
+	{
+		return isFileWrite;
 	}
 	public void onStart(Intent intent,int startId)
 	{

@@ -4,7 +4,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <EditText android:layout_height="wrap_content" android:id="@+id/editText1" android:layout_width="fill_parent" android:text="LogFileName"></EditText>
-    <Button android:layout_height="wrap_content" android:text="StartSave" android:id="@+id/btnStart" android:layout_width="fill_parent"></Button>
+    <TextView android:text="ログファイル名" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_margin="5dp"></TextView>
+    <EditText android:layout_height="wrap_content" android:id="@+id/editText1" android:layout_width="fill_parent" android:text="mylog.txt" android:gravity="center_horizontal" android:layout_margin="5dp"></EditText>
+    <Button android:layout_height="wrap_content" android:text="StartSave" android:id="@+id/btnStart" android:layout_width="fill_parent" android:layout_margin="5dp"></Button>
     <Button android:layout_height="wrap_content" android:text="StopSave" android:id="@+id/btnStop" android:layout_width="fill_parent"></Button>
+    <TextView android:text="ステータス" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/textView2" android:layout_gravity="center_horizontal"></TextView>
 </LinearLayout>
