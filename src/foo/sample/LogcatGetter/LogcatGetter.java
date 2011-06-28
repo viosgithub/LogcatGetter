@@ -1,5 +1,6 @@
 package foo.sample.LogcatGetter;
 
+import java.io.File;
 import java.util.List;
 
 import android.app.Activity;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -90,6 +92,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 		Log.d("debug","start Logcat Service");
 	}
+	/*
 	private void stopLogcatService()
 	{
 		try
@@ -109,6 +112,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			e.printStackTrace();
 		}
 	}
+	*/
 	private void saveLog()
 	{
 		Log.d("debug","push save button");
@@ -117,6 +121,12 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			startLogcatService();
 		}
 		EditText edt = (EditText)findViewById(R.id.editText1);
+		File file = new File(Environment.getExternalStorageDirectory()+"/"+edt.getText().toString()+"main.txt");
+		if(file.exists())
+		{
+			Toast.makeText(getApplicationContext(), "既に同名のファイルが存在します．ファイル名を変更してください",Toast.LENGTH_SHORT).show();
+			return;
+		}
 		try
 		{
 			int ret = logcatGetterService.saveLog(edt.getText().toString());
@@ -169,10 +179,12 @@ public class LogcatGetter extends Activity implements OnClickListener {
 			try {
 				if(logcatGetterService!= null && logcatGetterService.isWritting())
 				{
+					Log.d("debug","setText:saving");
 					tvStatus.setText("ログ保存中");
 				}
 					else
 					{
+					Log.d("debug","setText:stopping");
 						tvStatus.setText("停止中");
 					}
 			} catch (RemoteException e) {
@@ -188,7 +200,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	protected final void onDestroy()
 	{
 		super.onDestroy();
-		stopLogcatService();
+		//stopLogcatService();
 	}
 	private class LogcatGetterServiceConnection implements ServiceConnection
 	{
@@ -197,6 +209,15 @@ public class LogcatGetter extends Activity implements OnClickListener {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			//logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
 			logcatGetterService = ILogcatGetterService.Stub.asInterface(service);
+			try {
+				if(logcatGetterService != null && logcatGetterService.isWritting())
+				{
+					tvStatus.setText("ログ保存中\nファイル名："+logcatGetterService.getWriteFilename()+"*");
+				}
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			Log.d("debug","onServiceConnected");
 			try
 			{

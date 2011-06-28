@@ -16,6 +16,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 public class LogcatGetterService extends Service {
@@ -26,9 +27,9 @@ public class LogcatGetterService extends Service {
     private static final int LOGWRITE_ALREADY_WRITE = -1;
     private static final int LOGWRITE_OK = 1;
 
-    public boolean isFileWrite = false;
-    public boolean isTryWrite = false;
-    public String writeFileName = "none";
+    public static boolean isFileWrite = false;
+    public static boolean isTryWrite = false;
+    public static String writeFileName = "none";
 
     private IBinder mBinder = new LogcatGetterServiceBinder();
     private List<String> mList = new ArrayList<String>();
@@ -86,7 +87,7 @@ public class LogcatGetterService extends Service {
                                                 .getExternalStorageDirectory()
                                                 + "/"
                                                 + writeFileName
-                                                + "main"),
+                                                + "main.txt"),
                                             "UTF-8"));
                                 bwEvents = new BufferedWriter(
                                         new OutputStreamWriter(
@@ -95,7 +96,7 @@ public class LogcatGetterService extends Service {
                                                 .getExternalStorageDirectory()
                                                 + "/"
                                                 + writeFileName
-                                                + "radio"),
+                                                + "radio.txt"),
                                             "UTF-8"));
                                 bwRadio = new BufferedWriter(
                                         new OutputStreamWriter(
@@ -104,7 +105,7 @@ public class LogcatGetterService extends Service {
                                                 .getExternalStorageDirectory()
                                                 + "/"
                                                 + writeFileName
-                                                + "events"),
+                                                + "events.txt"),
                                             "UTF-8"));
                                 isFileWrite = true;
                             }
@@ -196,10 +197,19 @@ public class LogcatGetterService extends Service {
     }
 
     @Override
+    public boolean onUnbind(Intent intent)
+    {
+    	super.onUnbind(intent);
+    	Log.d("debug","onUbind");
+    	Log.d("debug","isFileWrite:"+isFileWrite);
+    	return true;
+    }
+    @Override
     public void onRebind(Intent intent)
     {
     	super.onRebind(intent);
     	Log.d("debug","Rebind");
+    	Log.d("debug","isFileWrite:"+isFileWrite);
     }
     @Override
         public void onDestroy() {
@@ -268,14 +278,20 @@ public class LogcatGetterService extends Service {
         }
 
         public boolean isWritting() {
+        	Log.d("debug","isWritting:"+isFileWrite);
             return isFileWrite;
         }
-
         public void setLogBreak() {
             synchronized (mObjThreadBread) {
                 mThreadBreak = true;
             }
         }
+
+		@Override
+		public String getWriteFilename() throws RemoteException {
+			// TODO Auto-generated method stub
+        	return writeFileName;
+		}
 
     }
 
