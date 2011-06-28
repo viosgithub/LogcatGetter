@@ -9,6 +9,9 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Environment;
@@ -193,11 +196,35 @@ public class LogcatGetterService extends Service {
     }
 
     @Override
+    public void onRebind(Intent intent)
+    {
+    	super.onRebind(intent);
+    	Log.d("debug","Rebind");
+    }
+    @Override
         public void onDestroy() {
             super.onDestroy();
-            isTryWrite = isFileWrite = false;
+            if(isFileWrite)
+            {
+            NotificationManager nm = 
+            	(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            Notification n = new Notification();
+            n.icon = R.drawable.icon;
+            n.tickerText = "LogGetterサービスの終了";
+            n.setLatestEventInfo(getApplicationContext(), "LogcatGetter", "なんとなくログの記録を終了しました", contentIntent());
+            nm.notify(1,n);
+            }
             closeFiles();
         }
+    
+    private PendingIntent contentIntent()
+    {
+    	Intent intent = 
+    		new Intent(getApplicationContext(),LogcatGetter.class);
+    	PendingIntent pi = 
+    		PendingIntent.getActivity(this, 0, intent, 0);
+    	return pi;
+    }
 
     @Override
         public IBinder onBind(Intent arg0) {
