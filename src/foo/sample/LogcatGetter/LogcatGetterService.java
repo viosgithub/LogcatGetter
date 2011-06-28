@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -21,8 +19,6 @@ import android.util.Log;
 
 public class LogcatGetterService extends Service {
 
-    private static final int LOGCAT_SAVE_MAXLINES = 30000;
-    private static final int LOGCAT_DISP_MAXLINES = 1000;
 
     private static final int LOGWRITE_ALREADY_WRITE = -1;
     private static final int LOGWRITE_OK = 1;
@@ -32,7 +28,6 @@ public class LogcatGetterService extends Service {
     public static String writeFileName = "none";
 
     private IBinder mBinder = new LogcatGetterServiceBinder();
-    private List<String> mList = new ArrayList<String>();
 
     private BufferedWriter bwMain = null;
     private BufferedWriter bwEvents = null;
@@ -200,7 +195,7 @@ public class LogcatGetterService extends Service {
     public boolean onUnbind(Intent intent)
     {
     	super.onUnbind(intent);
-    	Log.d("debug","onUbind");
+    	Log.d("debug","onUnbind");
     	Log.d("debug","isFileWrite:"+isFileWrite);
     	return true;
     }
@@ -221,7 +216,7 @@ public class LogcatGetterService extends Service {
             Notification n = new Notification();
             n.icon = R.drawable.icon;
             n.tickerText = "LogGetterサービスの終了";
-            n.setLatestEventInfo(getApplicationContext(), "LogcatGetter", "なんとなくログの記録を終了しました", contentIntent());
+            n.setLatestEventInfo(getApplicationContext(), "LogcatGetter", "なんとなくログの記録を終了しまいました(笑）", contentIntent());
             nm.notify(1,n);
             }
             closeFiles();
@@ -242,17 +237,6 @@ public class LogcatGetterService extends Service {
         }
 
     private class LogcatGetterServiceBinder extends ILogcatGetterService.Stub {
-        public List<String> getDispData() {
-            synchronized (mList) {
-                int listsize = mList.size();
-                if (listsize < LOGCAT_DISP_MAXLINES) {
-                    return new ArrayList<String>(mList);
-                } else {
-                    int start = listsize - LOGCAT_DISP_MAXLINES;
-                    return new ArrayList<String>(mList.subList(start, listsize));
-                }
-            }
-        }
 
         public int saveLog(String FileName) {
             Log.d("debug", "LogcatGetterService:saveLog");

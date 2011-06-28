@@ -157,11 +157,7 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	protected final void onStart()
 	{
 		super.onStart();
-		Log.d("debug","onResume");
-		if(logcatGetterService == null)
-		{
-			startLogcatService();
-		}
+		Log.d("debug","onStart");
 		
 	}
 	@Override
@@ -169,31 +165,9 @@ public class LogcatGetter extends Activity implements OnClickListener {
 	{
 		super.onResume();
 		Log.d("debug","onResume");
-		
-		/*
 		if(logcatGetterService == null)
 		{
 			startLogcatService();
-		}
-		*/
-			try {
-				if(logcatGetterService!= null && logcatGetterService.isWritting())
-				{
-					Log.d("debug","setText:saving");
-					tvStatus.setText("ログ保存中");
-				}
-					else
-					{
-					Log.d("debug","setText:stopping");
-						tvStatus.setText("停止中");
-					}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		if(logcatGetterService == null)
-		{
-						Log.d("debug","logcatGetterService is null");
 		}
 	}
 	@Override
